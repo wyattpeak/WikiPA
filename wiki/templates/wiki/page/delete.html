@@ -1,0 +1,26 @@
+{%  extends "wiki/base.html" %}
+{% block content %}
+
+<section class="bg-dark text-light p-5 text-center text-sm-start min-vh-100">
+    <div class="container">
+        <div class="content-section">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <br/>
+
+                <h4>Are you sure you wish to delete this page?</h4>
+
+                <p>
+                <input class="btn btn-danger" type="submit" value="Yes" />
+                <a class="btn btn-secondary" href="{% url 'wiki:page-index' %}">Cancel</a>
+                </p>
+
+             </form>
+
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
