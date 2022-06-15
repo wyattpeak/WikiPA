@@ -3,6 +3,9 @@ from django import forms
 from .models import Page
 from .watson import get_keywords
 
+from tempfile import NamedTemporaryFile
+import textract
+
 
 class PageForm(forms.ModelForm):
     file = forms.FileField()
@@ -16,9 +19,13 @@ class PageForm(forms.ModelForm):
 
         file = self.cleaned_data.get('file')
 
-        # print(file.content_type)
-        content = file.read().decode('utf-8')
-        instance.content = content
+        extension = file.name.split('.')[-1]
+        with NamedTemporaryFile(mode='w+b', suffix=f'.{extension}') as fh:
+            fh.write(file.read())
+            fh.seek(0)
+
+            content = textract.process(fh.name).decode('utf-8')
+            instance.content = content
 
         if commit:
             instance.save()
