@@ -11,6 +11,6 @@ COPY project /opt/h2otoday
 
 WORKDIR /opt/h2otoday
 
-EXPOSE 8000
+EXPOSE 80
 
-CMD ["gunicorn", "--bind", ":8000", "--workers", "3", "h2otoday.wsgi:application"]
+CMD ["gunicorn", "--bind", ":80", "--workers", "3", "h2otoday.wsgi:application"]
