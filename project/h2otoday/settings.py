@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!30rvgitip+207y+!8j8v=o^18cf2$e3-)n*!pf%6+@f-os!)f'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = ['*']
 
@@ -77,8 +78,14 @@ WSGI_APPLICATION = 'h2otoday.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('SQL_DATABASE'),
+        'USER': os.environ.get('SQL_USER'),
+        'PASSWORD': os.environ.get('SQL_PASSWORD'),
+        'HOST': os.environ.get('SQL_HOST'),
+        'PORT': os.environ.get('SQL_PORT'),
     }
 }
 

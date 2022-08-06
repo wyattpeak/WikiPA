@@ -14,12 +14,12 @@ def content_add_links(page):
 
 def push_to_wiki(page):
     ua = 'Orchestrator/0.1 (orchestrator-bot@suasagemachine.org)'
-    site = Site('localhost:8001', scheme='http', clients_useragent=ua, path='/')
+    site = Site('168.1.198.92', scheme='http', clients_useragent=ua, path='/')
     site.login('Admin', 'password12345!')
 
     content = content_add_links(page)
     wiki_page = site.pages[page.title]
     wiki_page.edit(content)
 
-    page.url = f'http://localhost:8001/index.php/{wiki_page.name}'
+    page.url = f'http://168.1.198.92/index.php/{wiki_page.name}'
     page.save()
