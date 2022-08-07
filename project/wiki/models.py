@@ -4,6 +4,7 @@ from django.db import models
 class Page(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
+    image_dir = models.CharField(max_length=150, null=True)
     url = models.CharField(max_length=150, null=True)
 
     class Meta:

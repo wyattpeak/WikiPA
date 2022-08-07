@@ -24,7 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!30rvgitip+207y+!8j8v=o^18cf2$e3-)n*!pf%6+@f-os!)f'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
+# DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -78,14 +79,14 @@ WSGI_APPLICATION = 'h2otoday.wsgi.application'
 
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('SQL_DATABASE'),
-        'USER': os.environ.get('SQL_USER'),
-        'PASSWORD': os.environ.get('SQL_PASSWORD'),
-        'HOST': os.environ.get('SQL_HOST'),
-        'PORT': os.environ.get('SQL_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.mysql',
+        # 'NAME': os.environ.get('SQL_DATABASE'),
+        # 'USER': os.environ.get('SQL_USER'),
+        # 'PASSWORD': os.environ.get('SQL_PASSWORD'),
+        # 'HOST': os.environ.get('SQL_HOST'),
+        # 'PORT': os.environ.get('SQL_PORT'),
     }
 }
 
@@ -125,6 +126,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = 'media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
