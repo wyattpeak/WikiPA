@@ -4,7 +4,7 @@ from django.views.generic import ListView, DeleteView
 from django.views.generic.edit import FormView
 
 from .models import Page
-from .forms import PageForm
+from .forms import PageForm, PageBulkImportForm
 from .mediawiki import push_to_wiki
 
 
@@ -51,3 +51,13 @@ def page_push(request, pk):
     context = {'page': page, 'links': links}
 
     return render(request, 'wiki/page/push.html', context)
+
+
+class PageBulkImportView(FormView):
+    form_class = PageBulkImportForm
+    template_name = 'wiki/page/bulk-import.html'
+    success_url = reverse_lazy('wiki:page-index')
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)

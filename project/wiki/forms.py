@@ -1,13 +1,10 @@
 from django import forms
-from django.conf import settings
+from django.core.exceptions import ValidationError
 
 from tempfile import NamedTemporaryFile
-import textract
-import os
+from zipfile import ZipFile
 
 from .models import Page
-from .watson import get_keywords
-from .docx import docx_parse
 
 
 class PageForm(forms.ModelForm):
@@ -31,23 +28,36 @@ class PageForm(forms.ModelForm):
             fh.write(file.read())
             fh.seek(0)
 
-            if extension == 'docx':
-                image_dir = settings.MEDIA_ROOT / 'page_images' / str(instance.pk)
-                instance.image_dir = image_dir
-
-                content, content_raw = docx_parse(fh, image_dir)
-            else:
-                content = textract.process(fh.name).decode('utf-8')
-                content_raw = content
-
-            instance.content = content
-
-        instance.save()
-
-        # this has to be run after instance.save(), only if the file exists
-        keywords = get_keywords(content_raw)
-        for keyword in keywords:
-            instance.link_set.create(title=keyword['text'],
-                                     relevance=keyword['relevance'])
+            instance.build_from_file(fh)
 
         return instance
+
+
+class PageBulkImportForm(forms.Form):
+    file = forms.FileField(label='Zip file')
+
+    def clean(self):
+        file = self.cleaned_data.get("file")
+        extension = file.name.split('.')[-1]
+        if extension != 'zip':
+            self.add_error('file', ValidationError('The bulk import function only supports zip files.'))
+
+        return self.cleaned_data
+
+    def save(self, commit=True):
+        if not commit:
+            raise ValueError('Saving this form without committing is not implemented.')
+
+        file = self.cleaned_data.get('file')
+        with ZipFile(file) as zipfile:
+            for doc_filename in zipfile.namelist():
+                with zipfile.open(doc_filename) as docfile:
+                    title, extension = docfile.name.rsplit('.')
+
+                    with NamedTemporaryFile(mode='w+b', suffix=f'.{extension}') as fh:
+                        fh.write(docfile.read())
+                        fh.seek(0)
+
+                        page = Page(title=title)
+                        page.build_from_file(fh)
+                        page.save()

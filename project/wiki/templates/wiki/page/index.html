@@ -17,6 +17,7 @@
     <div class="container">
         <header class="d-flex justify-content-end py-3">
             <a class="btn btn-secondary mx-1" href="{% url 'wiki:page-create' %}">New</a>
+            <a class="btn btn-secondary mx-1" href="{% url 'wiki:page-bulk-import' %}">Import zip</a>
             <a class="btn btn-primary ml-1" href="{% url 'wiki:page-index' %}">Refresh</a>
         </header>
     </div>
@@ -41,14 +42,14 @@
 	            {% endif %}
 
 	            {% for page in object_list %}
-		            <tr class="list-item">
+		            <tr class="list-item {% if not page.url %}table-warning{% endif %}">
 			            <td>
                             <div class="list-actions">
     			                <a href="{% url 'wiki:page-push' page.id %}" class="btn btn-secondary"><i class="bi bi-box-arrow-in-up-right"></i></a>
     		                    <a href="{% url 'wiki:page-delete' page.id %}" class="btn btn-secondary"><i class="bi bi-trash-fill"></i></a>
                             </div>
 			            </td>
-			            <td>{{ page.title }}</td>
+                            <td>{{ page.title }} {% if not page.url %}<i>(Not published)</i>{% endif %}</td>
 		            </tr>
 	            {% endfor %}
 	        </tbody>

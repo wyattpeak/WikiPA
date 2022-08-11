@@ -20,4 +20,4 @@ WORKDIR /opt/h2otoday
 
 EXPOSE 80
 
-# CMD ["gunicorn", "--bind", ":80", "--workers", "3", "h2otoday.wsgi:application"]
+CMD ["gunicorn", "--bind", ":80", "--workers", "3", "h2otoday.wsgi:application"]
