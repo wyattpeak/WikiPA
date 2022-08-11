@@ -53,6 +53,7 @@ class PageBulkImportForm(forms.Form):
             for doc_filename in zipfile.namelist():
                 with zipfile.open(doc_filename) as docfile:
                     title, extension = docfile.name.rsplit('.')
+                    title = title.split('/')[-1]
 
                     with NamedTemporaryFile(mode='w+b', suffix=f'.{extension}') as fh:
                         fh.write(docfile.read())

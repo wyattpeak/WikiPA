@@ -1,6 +1,7 @@
 import os
 import shutil
 import mammoth
+import re
 
 
 class ImageWriter(object):
@@ -29,6 +30,12 @@ def docx_parse(fh, output_dir):
 
     result = mammoth.convert_to_html(fh, convert_image=convert_image)
     content = result.value
+
+    # Remove links without href attribute from content, don't know why they're inserted
+    content = re.sub(r'<a[^>]*(?!href="[^"]*")[^>]>.*?</a>', '', content)
+
+    # Give borders to tables
+    content = content.replace('<table>', '<table class="wikitable">')
 
     result_raw = mammoth.extract_raw_text(fh)
     content_raw = result_raw.value
