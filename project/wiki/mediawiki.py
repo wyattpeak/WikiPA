@@ -1,4 +1,5 @@
 from mwclient import Site
+from mwclient.errors import APIError
 import os
 import re
 
@@ -42,12 +43,16 @@ def content_add_links(page, content):
     return content
 
 
-def push_to_wiki(page):
+def login_to_wiki():
     ua = 'Orchestrator/0.1 (orchestrator-bot@suasagemachine.org)'
     site = Site('168.1.198.92', scheme='http', clients_useragent=ua, path='/')
     site.login('Admin', 'password12345!')
 
-    # content = content_add_images(site, page)
+    return site
+
+
+def push_to_wiki(page):
+    site = login_to_wiki()
 
     content = page.content
     content = content_add_images(site, page, content)
@@ -58,3 +63,18 @@ def push_to_wiki(page):
 
     page.url = f'http://168.1.198.92/index.php/{wiki_page.name}'
     page.save()
+
+
+def delete_from_wiki(page):
+    site = login_to_wiki()
+
+    wiki_page = site.pages[page.title]
+
+    try:
+        wiki_page.delete()
+    except APIError as e:
+        if e.code == 'missingtitle':
+            # The page doesn't exist, this is fine
+            pass
+        else:
+            raise e

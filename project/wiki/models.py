@@ -2,9 +2,11 @@ from django.db import models
 from django.conf import settings
 
 import textract
+import os
 
 from .watson import get_keywords
 from .docx import docx_parse
+from .pdf import pdf_parse_as_images
 
 
 class Page(models.Model):
@@ -25,14 +27,20 @@ class Page(models.Model):
 
         extension = fh.name.split('.')[-1]
 
-        if extension == 'docx':
-            image_dir = settings.MEDIA_ROOT / 'page_images' / str(self.pk)
-            self.image_dir = image_dir
+        image_dir = settings.MEDIA_ROOT / 'page_images' / str(self.pk)
+        os.makedirs(image_dir)
+        self.image_dir = image_dir
 
+        if extension == 'docx':
             content, content_raw = docx_parse(fh, image_dir)
+        elif extension == 'pdf':
+            content, content_raw = pdf_parse_as_images(fh, image_dir)
         else:
             content = textract.process(fh.name).decode('utf-8')
             content_raw = content
+
+        # TODO DELETE
+        # self.title = 'DELETE ' + self.title
 
         self.content = content
         self.save()

@@ -9,7 +9,7 @@ RUN mkdir /opt/h2otoday
 
 COPY project/requirements.txt /opt/h2otoday/requirements.txt
 
-RUN apt-get update && apt-get install -y gcc libmariadb-dev default-libmysqlclient-dev
+RUN apt-get update && apt-get install -y gcc libmariadb-dev default-libmysqlclient-dev poppler-utils
 
 RUN pip install -r /opt/h2otoday/requirements.txt
 RUN pip install gunicorn

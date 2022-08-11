@@ -1,4 +1,3 @@
-import json
 from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from ibm_watson.natural_language_understanding_v1 \
@@ -6,6 +5,9 @@ from ibm_watson.natural_language_understanding_v1 \
 
 
 def get_keywords(txt):
+    if txt.strip() == '':
+        return []
+
     authenticator = IAMAuthenticator(
         # 'MrQXm9ZP3J3gv6jb_Gj5sI3SRlLPtE65KzEQKxWAK2Fp')
         '1B6cEVSdUKtLA6lFULKu-uxr98znn9gKKUPk29txrtmv')
