@@ -20,4 +20,5 @@ WORKDIR /opt/h2otoday
 
 EXPOSE 80
 
+ENTRYPOINT ["/opt/h2otoday/entrypoint.sh"]
 CMD ["gunicorn", "--bind", ":80", "--workers", "3", "h2otoday.wsgi:application"]
