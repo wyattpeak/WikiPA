@@ -53,6 +53,18 @@ def content_add_links(page, content):
     return content
 
 
+def content_add_categories(page, content):
+    categories = page.categories.all()
+
+    if len(categories) > 0:
+        content += "\n\n"
+
+        for category in categories:
+            content += f'[[Category:{category.name}]]'
+
+    return content
+
+
 def login_to_wiki():
     ua = 'Orchestrator/0.1 (orchestrator-bot@suasagemachine.org)'
     site = Site('168.1.198.92', scheme='http', clients_useragent=ua, path='/')
@@ -67,6 +79,7 @@ def push_to_wiki(page):
     content = page.content
     content = content_add_images(site, page, content)
     content = content_add_links(page, content)
+    content = content_add_categories(page, content)
 
     wiki_page = site.pages[page.title]
     wiki_page.edit(content)

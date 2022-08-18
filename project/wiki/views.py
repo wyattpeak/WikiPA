@@ -4,8 +4,8 @@ from django.views.generic import ListView, DeleteView
 from django.views.generic.edit import FormView
 from django.http import HttpResponse
 
-from .models import Page
-from .forms import PageForm, PageBulkImportForm, BackupLoadForm
+from .models import Page, Category
+from .forms import PageForm, PageBulkImportForm, BackupLoadForm, CategoryForm
 from .mediawiki import push_to_wiki
 from .backup import dump
 
@@ -40,6 +40,7 @@ class PageDeleteView(DeleteView):
 def page_push(request, pk):
     page = get_object_or_404(Page, pk=pk)
     links = page.link_set.all()
+    categories = Category.objects.all()
 
     if request.method == 'POST':
         active_links = [int(pk) for pk in request.POST.getlist('link[]')]
@@ -48,9 +49,25 @@ def page_push(request, pk):
             link.active = (link.pk in active_links)
             link.save()
 
+        active_categories = [int(pk) for pk in request.POST.getlist('category[]')]
+
+        for category in categories:
+            if category.pk in active_categories:
+                page.categories.add(category)
+            else:
+                page.categories.remove(category)
+
         push_to_wiki(page)
 
-    context = {'page': page, 'links': links}
+    # We grab this here because it may have been updated by the POST section
+    page_categories = page.categories.all()
+
+    context = {
+        'page': page,
+        'links': links,
+        'categories': categories,
+        'page_categories': page_categories
+    }
 
     return render(request, 'wiki/page/push.html', context)
 
@@ -80,3 +97,26 @@ class BackupLoadView(FormView):
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
+
+
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'wiki/category/index.html'
+    context_object_name = 'category'
+    paginate_by = 10
+
+
+class CategoryCreateView(FormView):
+    form_class = CategoryForm
+    template_name = 'wiki/category/create.html'
+    success_url = reverse_lazy('wiki:category-index')
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+
+class CategoryDeleteView(DeleteView):
+    model = Category
+    template_name = 'wiki/category/delete.html'
+    success_url = reverse_lazy('wiki:category-index')

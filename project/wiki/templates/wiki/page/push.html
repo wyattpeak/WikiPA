@@ -50,7 +50,7 @@
 						<div style="height:300px; overflow:auto;">
 							<table class="table">
 								<tr>
-									<th>Add link</th>
+									<th style="width:10%;">Add</th>
 									<th>Link text</th>
 									<th>Relevance</th>
 								</tr>
@@ -62,6 +62,29 @@
 										</td>
 										<td><label for="link_{{ link.pk }}">{{ link.title }}</label></td>
 										<td>{{ link.relevance }}</td>
+									</tr>
+								{% endfor %}
+							</table>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>Categories</th>
+					<td>
+						<div style="height:150px; overflow:auto;">
+							<table class="table">
+								<tr>
+									<th style="width:10%;">Add</th>
+									<th>Category</th>
+								</tr>
+								{% for category in categories %}
+									<tr>
+										<td>
+											<input type="checkbox" name="category[]" value="{{ category.pk }}"
+												   id="category_{{ category.pk }}"
+												   {% if category in page_categories %} checked="checked" {% endif %} >
+										</td>
+										<td><label for="category_{{ category.pk }}">{{ category.name }}</label></td>
 									</tr>
 								{% endfor %}
 							</table>

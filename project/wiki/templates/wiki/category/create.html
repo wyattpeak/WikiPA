@@ -1,0 +1,30 @@
+{% extends "wiki/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+    <!-- Main Section -->
+    <section class="bg-dark text-light p-5 text-center text-sm-start min-vh-100">
+        <div class="container">
+            <div class="content-section">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Add category</legend>
+                        {{ form|crispy }}
+                    </fieldset>
+
+                    <br/>
+
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="post">OK</button>
+                        <a href="{%  url 'wiki:category-index' %}" class="btn btn-info">Cancel</a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </section>
+
+{% endblock content %}

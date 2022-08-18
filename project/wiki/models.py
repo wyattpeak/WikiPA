@@ -9,11 +9,19 @@ from .docx import docx_parse
 from .pdf import pdf_parse_as_images
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
 class Page(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
     image_dir = models.CharField(max_length=150, null=True)
     url = models.CharField(max_length=150, null=True)
+    categories = models.ManyToManyField(Category)
 
     class Meta:
         ordering = ['title']

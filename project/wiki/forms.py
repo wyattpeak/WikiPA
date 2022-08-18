@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Page
+from .models import Page, Category
 from .backup import load
 
 from tempfile import NamedTemporaryFile
@@ -88,3 +88,23 @@ class BackupLoadForm(forms.Form):
         file = self.cleaned_data.get('file')
         with tarfile.open(fileobj=file, mode='r:gz') as tar:
             load(tar)
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+
+    # def save(self, commit=True):
+    #     instance = super().save(commit=False)
+
+    #     file = self.cleaned_data.get('file')
+
+    #     extension = file.name.split('.')[-1]
+    #     with NamedTemporaryFile(mode='w+b', suffix=f'.{extension}') as fh:
+    #         fh.write(file.read())
+    #         fh.seek(0)
+
+    #         instance.build_from_file(fh)
+
+    #     return instance

@@ -12,4 +12,7 @@ urlpatterns = [
     path('page/bulk-import/', views.PageBulkImportView.as_view(), name='page-bulk-import'),
     path('backup/dump/', views.backup_dump, name='backup-dump'),
     path('backup/load/', views.BackupLoadView.as_view(), name='backup-load'),
+    path('category/', views.CategoryListView.as_view(), name='category-index'),
+    path('category/create/', views.CategoryCreateView.as_view(), name='category-create'),
+    path('category/<int:pk>/delete/', views.CategoryDeleteView.as_view(), name='category-delete'),
 ]
