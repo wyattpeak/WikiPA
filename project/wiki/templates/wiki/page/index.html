@@ -18,7 +18,9 @@
         <header class="d-flex justify-content-end py-3">
             <a class="btn btn-secondary mx-1" href="{% url 'wiki:page-create' %}">New</a>
             <a class="btn btn-secondary mx-1" href="{% url 'wiki:page-bulk-import' %}">Import zip</a>
-            <a class="btn btn-primary ml-1" href="{% url 'wiki:page-index' %}">Refresh</a>
+            <a class="btn btn-danger mx-1" href="{% url 'wiki:backup-dump' %}">Dump data</a>
+            <a class="btn btn-danger mx-1" href="{% url 'wiki:backup-load' %}">Load data</a>
+            <a class="btn btn-primary mx-1" href="{% url 'wiki:page-index' %}">Refresh</a>
         </header>
     </div>
 

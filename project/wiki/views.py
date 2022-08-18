@@ -2,10 +2,12 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DeleteView
 from django.views.generic.edit import FormView
+from django.http import HttpResponse
 
 from .models import Page
-from .forms import PageForm, PageBulkImportForm
+from .forms import PageForm, PageBulkImportForm, BackupLoadForm
 from .mediawiki import push_to_wiki
+from .backup import dump
 
 
 def index(request):
@@ -56,6 +58,23 @@ def page_push(request, pk):
 class PageBulkImportView(FormView):
     form_class = PageBulkImportForm
     template_name = 'wiki/page/bulk-import.html'
+    success_url = reverse_lazy('wiki:page-index')
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+
+def backup_dump(request):
+    dump_bytes = dump()
+    response = HttpResponse(dump_bytes, content_type="application/gzip")
+    response['Content-Disposition'] = 'inline; filename=backup.tgz'
+    return response
+
+
+class BackupLoadView(FormView):
+    form_class = BackupLoadForm
+    template_name = 'wiki/backup-load.html'
     success_url = reverse_lazy('wiki:page-index')
 
     def form_valid(self, form):

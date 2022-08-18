@@ -10,4 +10,6 @@ urlpatterns = [
     path('page/<int:pk>/delete/', views.PageDeleteView.as_view(), name='page-delete'),
     path('page/<int:pk>/push/', views.page_push, name='page-push'),
     path('page/bulk-import/', views.PageBulkImportView.as_view(), name='page-bulk-import'),
+    path('backup/dump/', views.backup_dump, name='backup-dump'),
+    path('backup/load/', views.BackupLoadView.as_view(), name='backup-load'),
 ]

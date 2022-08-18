@@ -1,10 +1,12 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
+from .models import Page
+from .backup import load
+
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile
-
-from .models import Page
+import tarfile
 
 
 class PageForm(forms.ModelForm):
@@ -62,3 +64,27 @@ class PageBulkImportForm(forms.Form):
                         page = Page(title=title)
                         page.build_from_file(fh)
                         page.save()
+
+
+class BackupLoadForm(forms.Form):
+    file = forms.FileField(label='Archive file')
+
+    class Meta:
+        model = Page
+        fields = ['title']
+
+    def clean(self):
+        file = self.cleaned_data.get("file")
+        extension = file.name.split('.')[-1]
+        if extension != 'tgz':
+            self.add_error('file', ValidationError('The archive import function only supports tgz files.'))
+
+        return self.cleaned_data
+
+    def save(self, commit=True):
+        if not commit:
+            raise ValueError('Saving this form without committing is not implemented.')
+
+        file = self.cleaned_data.get('file')
+        with tarfile.open(fileobj=file, mode='r:gz') as tar:
+            load(tar)
