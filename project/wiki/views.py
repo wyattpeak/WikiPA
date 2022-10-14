@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DeleteView
 from django.views.generic.edit import FormView
 from django.http import HttpResponse
+from django.core.mail import send_mail
 
 from .models import Page, Category
 from .forms import PageForm, PageBulkImportForm, BackupLoadForm, CategoryForm
@@ -120,3 +121,10 @@ class CategoryDeleteView(DeleteView):
     model = Category
     template_name = 'wiki/category/delete.html'
     success_url = reverse_lazy('wiki:category-index')
+
+
+def pa_create(request):
+    # send_mail('Test email', 'Test message body.', 'testsender@sausagemachine.net', ['charles@sausagemachine.org'], fail_silently=False)
+
+    # return redirect('wiki:page-index')
+    return HttpResponse('<p>Received.</p>')
