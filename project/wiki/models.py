@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 import textract
 import os
@@ -70,3 +71,26 @@ class Link(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Request(models.Model):
+    class RequestState(models.TextChoices):
+        REQUEST_RECEIVED = 'RR', _('Request received')
+        EMAIL_SENT = 'ES', _('Email sent to expert')
+        EMAIL_RECEIVED = 'ER', _('Email response received from expert')
+        PAGE_UPDATED = 'PU', _('Page updated')
+
+    class Meta:
+        ordering = ['page_title', 'pk']
+
+    page_title = models.CharField(max_length=255)
+    expert_name = models.CharField(max_length=255)
+    expert_email = models.EmailField(max_length=255)
+    message = models.TextField(null=True)
+    response = models.TextField(null=True, default=None)
+    state = models.CharField(max_length=2,
+                             choices=RequestState.choices,
+                             default=RequestState.REQUEST_RECEIVED)
+
+    def __str__(self):
+        return self.page_title

@@ -4,11 +4,20 @@ from django.views.generic import ListView, DeleteView
 from django.views.generic.edit import FormView
 from django.http import HttpResponse
 from django.core.mail import send_mail
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
-from .models import Page, Category
+from datetime import datetime
+from pathlib import Path
+import re
+
+from .models import Page, Category, Request
 from .forms import PageForm, PageBulkImportForm, BackupLoadForm, CategoryForm
-from .mediawiki import push_to_wiki
+from .mediawiki import push_to_wiki, scan_for_requests
+from .sendgrid import send_request_emails
 from .backup import dump
+
+pattern_page_title = re.compile(r'You were nominated as an expert on "(.+?)".')
 
 
 def index(request):
@@ -123,8 +132,61 @@ class CategoryDeleteView(DeleteView):
     success_url = reverse_lazy('wiki:category-index')
 
 
+class RequestListView(ListView):
+    model = Request
+    template_name = 'wiki/request/index.html'
+    context_object_name = 'request'
+    paginate_by = 10
+
+    def get(self, request, *args, **kwargs):
+        scan_for_requests()
+        send_request_emails()
+        return super().get(request, *args, **kwargs)
+
+
+@csrf_exempt
 def pa_create(request):
     # send_mail('Test email', 'Test message body.', 'testsender@sausagemachine.net', ['charles@sausagemachine.org'], fail_silently=False)
 
     # return redirect('wiki:page-index')
-    return HttpResponse('<p>Received.</p>')
+
+    ##############
+
+    now = datetime.now()
+
+    static_path = Path(settings.STATIC_ROOT)
+    static_path.mkdir(exist_ok=True)
+
+    create_log = settings.STATIC_ROOT / 'create_log.txt'
+    with open(create_log, 'a+') as fh:
+        fh.write(f'{now}: Received request\n')
+        fh.write(f'headers: {request.headers}\n')
+        fh.write(f'GET: {request.GET}\n')
+        fh.write(f'POST: {request.POST}\n\n')
+        response = request.POST.get('text')
+        fh.write(f'POSTTEXT: {response}\n\n')
+
+    # return HttpResponse(f'<p>Received at {now}.</p>')
+
+    ##############
+
+    response = request.POST.get('text', None)
+
+    if response is not None:
+        page_title_match = pattern_page_title.search(response)
+        if page_title_match is not None:
+            page_title = page_title_match.group(1)
+            page_content = response[:response.find('~~~~')].strip()
+            # page_content = page_content.replace('\r\n', '<br />')
+
+            request = get_object_or_404(Request, page_title=page_title)
+
+            page = Page(title=page_title, content=page_content)
+            page.save()
+
+            push_to_wiki(page)
+
+            request.state = Request.RequestState.PAGE_UPDATED
+            request.save()
+
+    return redirect('wiki:pa-request-index')

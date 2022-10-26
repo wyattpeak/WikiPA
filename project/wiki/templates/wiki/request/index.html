@@ -1,0 +1,90 @@
+{%  extends "wiki/base.html" %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'wiki/css/list.css' %}" />
+{% endblock css  %}
+
+{% block content %}
+
+<!-- Main -->
+<main role="main" class="container pt-5">
+	<div class="mt-5">
+		<h1>Requests</h1>
+	</div>
+
+    <!-- Additional Buttons -->
+    <div class="container">
+        <header class="d-flex justify-content-end py-3">
+            <a class="btn btn-primary mx-1" href="{% url 'wiki:pa-request-index' %}">Refresh</a>
+        </header>
+    </div>
+
+    <!-- Main Section -->
+    <section class="section min-vh-100" >
+	    <container>
+
+	        <!-- Customer Listing -->
+	        <table class="table table-striped">
+
+	            <thead class="thead-dark">
+	            <tr>
+		            <th scope="col" style="width:15%">Action</th>
+		            <th scope="col">Page title</th>
+		            <th scope="col">Expert name</th>
+		            <th scope="col">Expert email address</th>
+		            <th scope="col">Request state</th>
+	            </tr>
+	            </thead>
+
+	            <tbody>
+		            {% if object_list.count == 0  %}
+	                    <div class="alert alert-info">No requests exist, click <a href="{% url 'wiki:pa-request-index' %}">here</a> to re-check.</div>
+		            {% endif %}
+
+		            {% for request in object_list %}
+			            <tr class="list-item {% if request.state == 'RR' %}table-danger{% elif request.state == 'ES' %}table-warning{% elif request.state == 'ER' %}table-primary{% elif request.state == 'PU' %}table-success{% endif %}">
+				            <td></td>
+	                        <td>{{ request.page_title }}</td>
+	                        <td>{{ request.expert_name }}</td>
+	                        <td>{{ request.expert_email }}</td>
+	                        <td>{{ request.get_state_display }}</td>
+			            </tr>
+		            {% endfor %}
+		        </tbody>
+	        </table>
+
+	        <!-- Table Pagination -->
+	        {% if is_paginated %}
+	            <!-- Previous Button -->
+	            {% if page_obj.has_previous %}
+	                <a class="btn btn-outline-info" href="?page=1">First</a>
+	                <a class="btn btn-outline-info" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+	           {% endif %}
+
+	            <!-- Page Number Buttons -->
+	           {% for num in page_obj.paginator.page_range %}
+	                {% if page_obj.number == num %}
+	                    <a class="btn btn-outline-info" href="?page={{ num }}">{{ num }}</a>
+	                {% elif num > page_obj.number|add:'-3' or num > page_obj.number|add:'3' %}
+	                    <a class="btn btn-outline-info" href="?page={{ num }}">{{ num }}</a>
+	                {% endif %}
+	            {% endfor %}
+
+	            <!-- Next Button -->
+	            {% if page_obj.has_next %}
+	                <a class="btn btn-outline-info" href="?page={{ page_obj.next_page_number }}">Next</a>
+	                <a class="btn btn-outline-info" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+	            {% endif %}
+
+	        {% endif %}
+
+	    </container>
+    </section>
+</main>
+
+{% endblock content %}
+
+{% block js %}
+    <script type="text/javascript" src="{% static 'wiki/js/list.js' %}"></script>
+{% endblock js %}

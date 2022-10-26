@@ -1,8 +1,14 @@
+from django.conf import settings
+
+from .models import Request
+
 from mwclient import Site
 from mwclient.errors import APIError
 from PIL import Image
 import os
 import re
+
+pattern_request = re.compile(r'{{Request\s*\|\s*Name=([^|]+)\|\s*Email=([^|]+)\|\s*Message=([^}]+)}}')
 
 
 def content_add_images(site, page, content):
@@ -47,7 +53,8 @@ def delete_inner_links(content):
 def content_add_links(page, content):
     for link in page.link_set.filter(active=True):
         link_title = link.title
-        content = content.replace(link_title, f'[[{link_title}]]')
+        # content = content.replace(link_title, f'[[{link_title}]]')
+        content = content.replace(link_title, f'[[Special:FormEdit/Request/{link_title}|{link_title}]]')
 
     content = delete_inner_links(content)
     return content
@@ -66,9 +73,9 @@ def content_add_categories(page, content):
 
 
 def login_to_wiki():
-    ua = 'Orchestrator/0.1 (orchestrator-bot@suasagemachine.org)'
-    site = Site('168.1.198.92', scheme='http', clients_useragent=ua, path='/')
-    site.login('Admin', 'password12345!')
+    ua = 'WikiPA/0.1 (wikipa-bot@h2otoday.sausagemachine.net)'
+    site = Site(settings.WIKI_URL, scheme='http', clients_useragent=ua, path='/')
+    site.login(settings.WIKI_USERNAME, settings.WIKI_PASSWORD)
 
     return site
 
@@ -84,7 +91,8 @@ def push_to_wiki(page):
     wiki_page = site.pages[page.title]
     wiki_page.edit(content)
 
-    page.url = f'http://168.1.198.92/index.php/{wiki_page.name}'
+    # page.url = f'http://168.1.198.92/index.php/{wiki_page.name}'
+    page.url = f'http://{settings.WIKI_URL}/wiki/{wiki_page.name}'
     page.save()
 
 
@@ -101,3 +109,26 @@ def delete_from_wiki(page):
             pass
         else:
             raise e
+
+
+def scan_for_requests():
+    site = login_to_wiki()
+    for page in site.categories['Requests']:
+        page_title = page.name
+
+        request_exists = Request.objects.filter(page_title=page_title).count() != 0
+        if not request_exists:
+            page_text = page.text()
+            match = pattern_request.search(page_text)
+
+            if match is not None:
+                expert_name = match.group(1).strip()
+                expert_email = match.group(2).strip()
+                message = match.group(3).strip()
+
+                request = Request(page_title=page_title,
+                                  expert_name=expert_name,
+                                  expert_email=expert_email,
+                                  message=message,
+                                  )
+                request.save()

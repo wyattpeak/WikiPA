@@ -24,8 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!30rvgitip+207y+!8j8v=o^18cf2$e3-)n*!pf%6+@f-os!)f'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = ['*']
 
@@ -142,3 +141,9 @@ EMAIL_HOST_USER = 'apikey'  # this is exactly the value 'apikey'
 EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+WIKI_URL = 'h2otoday.sausagemachine.net'
+WIKI_USERNAME = 'Admin'
+WIKI_PASSWORD = 'password12345!'
+TEMPLATE_NAME = 'Request'
+CATEGORY_NAME = 'Requests'
